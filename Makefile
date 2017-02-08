@@ -44,7 +44,7 @@ MAINO = $(addprefix $(BUILDDIR)/, $(TMP2))
 
 # Add various compiler flag
 #-w blocks all warning messages
-CXXFLAGS = -fPIC -w -I$(INCLDIR)
+CXXFLAGS = -std=c++11 -fPIC -w -I$(INCLDIR)
 SOFLAGS = -O -shared
 
 #Name of generated library
@@ -82,8 +82,8 @@ $(SO) : $(OBJS) $(ROOTDICO)
 	@$(CXX) $(SOFLAGS) $(LDFLAGS) $^ -o $@
 
 build : $(MAINO) $(SO)
-	@echo "Compiling macro $(MAINSCR)"
-	@$(CXX) -DSTANDALONE -g -o gui.out $< -l$(MYLIB) $(LDFLAGS)
+	@echo "Compiling $(MAINSCR)"
+	@$(CXX) -DSTANDALONE -g -o main.out $< -l$(MYLIB) $(LDFLAGS)
 	@echo "Done"
 
 test: $(TESTO) $(SO)
