@@ -21,18 +21,30 @@
 #define MTUPLE_H
 
 #include <iostream>
+#include <cstdint>
+#include <vector>
+#include <cmath>
 
+using uint = unsigned int;
+using vecInt = std::vector<int>;
+using vecDouble = std::vector<double>;
 
 //Class definition
 class MTuple
 {
+    
 private:
+    uint m;
+    uint maxVal;
+    const vecInt &sample;
 
-
+    vecInt toMDim(int index, int M);
+    int to1Dim(vecInt index);
     
 public:
-    MTuple();
-    void test();
+    MTuple(const uint tupleSize, const uint maxInt, const vecInt &sampleIn);
+    bool test(double &chi, int &DoF, const vecDouble& probabilites);
+    bool test(double &chi, int &DoF);
     
 };
 #endif 
