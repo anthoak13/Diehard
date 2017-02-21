@@ -24,6 +24,7 @@
 #include <cstdint>
 #include <vector>
 #include <cmath>
+#include "ArrayHelper.h"
 
 using uint = unsigned int;
 using vecInt = std::vector<int>;
@@ -37,9 +38,7 @@ private:
     uint m;
     uint maxVal;
     const vecInt &sample;
-
-    vecInt toMDim(int index, int M);
-    int to1Dim(vecInt index);
+    ArrayHelper help;
     
 public:
     MTuple(const uint tupleSize, const uint maxInt, const vecInt &sampleIn);
