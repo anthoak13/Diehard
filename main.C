@@ -13,7 +13,9 @@
 
 
 //Entry point for program
+#include <algorithm>
 #include <vector>
+#include <map>
 #include <iostream>
 #include <cstdlib>
 #include <random>
@@ -22,12 +24,43 @@
 #include "Serial.h"
 #include "Frequency.h"
 
+int tests();
+int printHand(vecInt hand);
+
+int main(int argc, char **argv)
+{
+    return tests();
+}
+
+int printHand(vecInt hand)
+{
+    std::map<uint,uint> sortedHand;
+    vecInt uniqueNum;
+
+    //Create a map that contains <num, frequecny>
+    //Create a vector containing unique numbers
+    for(auto&& elem : hand)
+    {
+	if(!std::binary_search(uniqueNum.begin(), uniqueNum.end(), elem))
+	    uniqueNum.push_back(elem);
+	
+	auto mapElem = sortedHand.find(elem);
+	if(mapElem == sortedHand.end())
+	    sortedHand.insert(std::pair<uint,uint>(elem,1));
+	else
+	    mapElem->second++;
+    }
+    
+    //Print out sorted hand
+    return 0;
+}
+
 //In the m-tuple test x^2 decreases as the number of
 //elements in the array increases... I don't know if this is expected or not
 //p-value trends towards 1. I'd expect it to be closer to 0.5?
 
 //Main
-int main(int argc, char **argv)
+int tests()
 {
     //create gen
     std::random_device rd;
