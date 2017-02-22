@@ -20,6 +20,7 @@
 #include <time.h>
 #include "MTuple.h"
 #include "Serial.h"
+#include "Frequency.h"
 
 //In the m-tuple test x^2 decreases as the number of
 //elements in the array increases... I don't know if this is expected or not
@@ -35,27 +36,27 @@ int main(int argc, char **argv)
     srand(time(NULL));
 
     //Create sample
-    vecInt vec(10000,0);
+    vecInt vec(1000,0);
     double chiTot = 0;
     int DoFTot = 0;
 
     //Set to 1 to only run once
-    int maxIt = 100;
+    int maxIt = 1;
     for(int j = 0; j < maxIt; j++){
 
 	if(j%10 == 0)
 	    std::cout << "Loop iteration: " << j << std::endl;
 	
 	for(int i = 0; i < vec.size(); i++)
-	    //vec[i] = dis(gen);
-	    vec[i] = i%12+1;
+	    vec[i] = dis(gen);
+	    //vec[i] = i%12+1;
 	    //vec[i] = 1;
 	
 	//Test sample
 	double chi = 0;
 	int DoF = 0;
 	
-	Serial test(12, vec);
+	Frequency test(12, vec);
 	
 	test.test(chi, DoF);
 	
