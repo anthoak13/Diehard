@@ -17,19 +17,68 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include <cstdlib>
+#include <string>
+#include <fstream>
 #include <random>
 #include <time.h>
 #include "MTuple.h"
 #include "Serial.h"
 #include "Frequency.h"
 
-int tests();
+using string = std::string;
+int tests(vecInt& data);
 int printHand(vecInt hand);
+int loadData(vecInt& data);
 
 int main(int argc, char **argv)
 {
-    return tests();
+//    vecInt data{1,2,3,4,5,6,2,3,4,5};
+    vecInt data;
+//    MTuple tuple(3,6, data);
+
+//    double chi;
+//    int DoF;
+//    tuple.test(chi, DoF);
+
+//    std::cout << "X^2: " << chi << " DoF: " << DoF << std::endl;
+    //Load in the data
+    loadData(data);
+    //Test the data
+    return tests(data);
+}
+
+int loadData(vecInt& data)
+{
+    //create gen
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(1, 12);
+
+    int dataSize = 1000;
+    for(int i = 0; i < dataSize; i++)
+	data.push_back(dis(gen));
+    
+
+    /*string fileLoc = "/home/adam/Documents/dice/test.csv";
+    fileLoc = "/media/adam/DATA/DicePictures/Run3/labels.csv";
+
+    std::ifstream file;
+    file.open(fileLoc);
+    if(!file.is_open())
+	std::cout << "Can't open " << fileLoc << "!" << std::endl;
+
+    string line;
+
+    //Load in the data
+    while(std::getline(file, line))
+	if(line.find("#") == string::npos)
+	    data.push_back(std::stoi(line));
+    
+    //print out the data
+    //for( auto&& elem : data)
+    //std::cout << elem << std::endl;
+    */    
+    return 0;
 }
 
 int printHand(vecInt hand)
@@ -60,45 +109,29 @@ int printHand(vecInt hand)
 //p-value trends towards 1. I'd expect it to be closer to 0.5?
 
 //Main
-int tests()
+int tests(vecInt& data)
 {
-    //create gen
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(1, 12);
-    srand(time(NULL));
+    double chi = 0;
+    int DoF = 0;
 
-    //Create sample
-    vecInt vec(1000,0);
-    double chiTot = 0;
-    int DoFTot = 0;
+    //M-Tuple test
+    MTuple tuple(3, 12, data);
+    tuple.test(chi, DoF);
+    std::cout << "3-tuple test: " << std::endl <<
+	"X^2: " << chi << " DoF: " << DoF << std::endl;
 
-    //Set to 1 to only run once
-    int maxIt = 1;
-    for(int j = 0; j < maxIt; j++){
+    //Frequency test
+    Frequency freq(12, data);
+    freq.test(chi, DoF);
+    std::cout << "Frequency: " << std::endl <<
+	"X^2: " << chi << " DoF: " << DoF << std::endl;
 
-	if(j%10 == 0)
-	    std::cout << "Loop iteration: " << j << std::endl;
-	
-	for(int i = 0; i < vec.size(); i++)
-	    vec[i] = dis(gen);
-	    //vec[i] = i%12+1;
-	    //vec[i] = 1;
-	
-	//Test sample
-	double chi = 0;
-	int DoF = 0;
-	
-	Frequency test(12, vec);
-	
-	test.test(chi, DoF);
-	
-	// std::cout << "X^2: " << chi << " DoF: " << DoF << std::endl;
-	chiTot += chi;
-	DoFTot = DoF;
-    }
-    
-    std::cout << "X^2: " << chiTot/maxIt << " DoF: " << DoFTot << std::endl;
+    //Serial test
+    Serial serial(12, data);
+    serial.test(chi, DoF);
+    std::cout << "Frequency: " << std::endl <<
+	"X^2: " << chi << " DoF: " << DoF << std::endl;
+
     return 0;
 }
 

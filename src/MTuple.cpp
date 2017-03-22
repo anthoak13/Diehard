@@ -85,6 +85,16 @@ bool MTuple::test(double &chi, int &DoF, const vecDouble& p)
     //Calculate the ch1 metric
     for(int i = 0; i < w1.size(); i++)
     {
+	vecInt tuple = help.toMDim(i,m);
+	double mu = sample.size();
+	for(auto&& elem : tuple)
+	    mu *= p[elem];
+
+	if(i == 0)
+	    std::cout << "Sample size: "<< sample.size() <<
+		" Expected in bin: " << mu <<  std::endl;
+
+	
 	//If the tuple was never recorded, continue
 	if(w1[i] == 0)
 	{
@@ -92,18 +102,8 @@ bool MTuple::test(double &chi, int &DoF, const vecDouble& p)
 	    continue;
 	}
 
-	vecInt tuple = help.toMDim(i,m);
-	double mu = sample.size();
-	for(auto&& elem : tuple)
-	    mu *= p[elem];
 
-	//Print out sample size and expected number in each "bin"
-	
-	if(i == 0){
-	    std::cout << "Sample size: "<< sample.size() << " Expected in bin: ";
-	    std::cout << mu << std::endl;
 	    chi1 += (w1[i] - mu)*(w1[i] - mu)/mu;
-       }
     }
 
 
@@ -122,7 +122,7 @@ bool MTuple::test(double &chi, int &DoF, const vecDouble& p)
 	for(auto&& elem : tuple)
 	    mu *= p[elem];
 
-	chi1 += (w2[i] - mu)*(w2[i] - mu)/mu;
+	chi2 += (w2[i] - mu)*(w2[i] - mu)/mu;
     }
 
     
