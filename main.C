@@ -54,7 +54,7 @@ int loadData(vecInt& data)
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(1, 12);
 
-    int dataSize = 1000;
+    int dataSize = 100;
     for(int i = 0; i < dataSize; i++)
 	data.push_back(dis(gen));
     

@@ -54,17 +54,22 @@ bool MTuple::test(double &chi, int &DoF, const vecDouble& p)
     for(int i = 0; i < sample.size(); i++)
     {
 	//create an mtuple.
-        vecInt val;
-	//decrease the sample by one because functions assume zero index
+        vecInt tuple;
+	//decrease the sample by one because functions
+	//assume zero index
 	for(int j = 0; j < m; j++)
-	    val.push_back(sample[(i+j) % sample.size()] - 1);
+	    tuple.push_back(sample[(i+j) % sample.size()] - 1);
 	
 	//increase w1[tuple].
 	/*for(auto&& elem : val)
 	    std::cout << elem << " ";
 	std::cout << std::endl;
 	std::cout << to1Dim(val) << std::endl;*/
-	w1.at(help.to1Dim(val))++;
+
+        //This treats 1,1,2 as a single thing.
+	//WILL lead to an error in counting
+	//TODO: Fix!!!!!!!
+	w1.at(help.to1Dim(tuple))++;
     }
 
     //populate w2
@@ -79,6 +84,7 @@ bool MTuple::test(double &chi, int &DoF, const vecDouble& p)
 	//for(auto&& elem : val)
 	//    std::cout << elem << " ";
 	//std::cout << std::endl;
+	
 	w2.at(help.to1Dim(val))++;
     }
 
@@ -98,7 +104,7 @@ bool MTuple::test(double &chi, int &DoF, const vecDouble& p)
 	//If the tuple was never recorded, continue
 	if(w1[i] == 0)
 	{
-	    chi1++;
+	    chi1 += mu;
 	    continue;
 	}
 
@@ -110,18 +116,19 @@ bool MTuple::test(double &chi, int &DoF, const vecDouble& p)
     //Calculate the chi2 metric
     for(int i = 0; i < w2.size(); i++)
     {
-	//If the tuple was never recorded, continue
-	if(w2[i] == 0)
-	{
-	    chi2++;
-	    continue;
-	}
-
 	vecInt tuple = help.toMDim(i,m-1);
 	double mu = sample.size();
 	for(auto&& elem : tuple)
 	    mu *= p[elem];
+	
+        //If the tuple was never recorded, continue
+	if(w2[i] == 0)
+	{
+	    chi2 += mu;
+	    continue;
+	}
 
+	
 	chi2 += (w2[i] - mu)*(w2[i] - mu)/mu;
     }
 
