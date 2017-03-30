@@ -48,9 +48,10 @@ bool Frequency::test(double &chi, int &DoF, const vecDouble& p)
 
     //std::cout << "X^2: " << chi << " DoF: " << DoF << std::endl;
     //Print out the frequencies
-    for(int i = 0; i < freq.size(); i++)
+    /*for(int i = 0; i < freq.size(); i++)
 	std::cout << i+1 << ": " << freq[i] << " ";
 	std::cout << std::endl;
+    */
     return true;
 			   
 }

@@ -21,6 +21,7 @@
 #include <fstream>
 #include <random>
 #include <time.h>
+#include "ArrayHelper.h"
 #include "MTuple.h"
 #include "Serial.h"
 #include "Frequency.h"
@@ -28,56 +29,68 @@
 using string = std::string;
 int tests(vecInt& data);
 int printHand(vecInt hand);
-int loadData(vecInt& data);
+int loadData(vecInt& data, string filLoc);
 
 int main(int argc, char **argv)
 {
-//    vecInt data{1,2,3,4,5,6,2,3,4,5};
+
+    /*ArrayHelper h(12);
+    vecInt test{12,12,12};
+    for(auto&& elem :h.toMDim(h.to1Dim(test),3))
+	std::cout << " " << elem;
+	std::cout << " " << h.to1Dim(test) << std::endl;*/
+    
     vecInt data;
-//    MTuple tuple(3,6, data);
-
-//    double chi;
-//    int DoF;
-//    tuple.test(chi, DoF);
-
-//    std::cout << "X^2: " << chi << " DoF: " << DoF << std::endl;
-    //Load in the data
-    loadData(data);
+    //loadData(data,"/media/adam/DATA/DicePictures/Run3/labels.csv");
+    loadData(data,"/media/adam/DATA/DicePictures/Run4/labels.csv");
     //Test the data
-    return tests(data);
+    tests(data);
+    return 0;
 }
 
-int loadData(vecInt& data)
+int loadData(vecInt& data, string fileLoc)
 {
-    //create gen
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(1, 12);
+    if(fileLoc.empty())
+    {
+	//create gen
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> dis(1, 12);
+	
+	int dataSize = 100;
+	for(int i = 0; i < dataSize; i++)
+	    data.push_back(dis(gen));
+    }
+    else
+    {
 
-    int dataSize = 100;
-    for(int i = 0; i < dataSize; i++)
-	data.push_back(dis(gen));
-    
-
-    /*string fileLoc = "/home/adam/Documents/dice/test.csv";
-    fileLoc = "/media/adam/DATA/DicePictures/Run3/labels.csv";
+    //string fileLoc = "/home/adam/Documents/dice/test.csv";
+    //fileLoc = "/media/adam/DATA/DicePictures/Run3/labels.csv";
+    //fileLoc = "/home/adam/Desktop/d12_2.csv";
 
     std::ifstream file;
     file.open(fileLoc);
     if(!file.is_open())
 	std::cout << "Can't open " << fileLoc << "!" << std::endl;
+    else
+	std::cout << "Opening " << fileLoc << std::endl;
 
     string line;
 
     //Load in the data
     while(std::getline(file, line))
 	if(line.find("#") == string::npos)
+	{
 	    data.push_back(std::stoi(line));
-    
+	    if(data.back() < 1 || data.back() > 12)
+		std::cout << line << std::endl;
+	}
+
+    std::cout << "Loaded data." << std::endl;
     //print out the data
     //for( auto&& elem : data)
     //std::cout << elem << std::endl;
-    */    
+    }        
     return 0;
 }
 
@@ -129,7 +142,7 @@ int tests(vecInt& data)
     //Serial test
     Serial serial(12, data);
     serial.test(chi, DoF);
-    std::cout << "Frequency: " << std::endl <<
+    std::cout << "Serial: " << std::endl <<
 	"X^2: " << chi << " DoF: " << DoF << std::endl;
 
     return 0;
