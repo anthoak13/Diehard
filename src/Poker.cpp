@@ -41,13 +41,11 @@ bool Poker::test(double &chi, int &DoF)
 
 bool Poker::test(double &chi, int &DoF, const vecDouble& p)
 {
-    //Inizialize chi and DoF
-    //DoF is the size of the hand - 1, because there are size of hand options
-    //for the number of repeat numbers (2 of a kind, 3, 4, etc)
+    //Inizialize chi
     chi = 0;
-    DoF = handSize - 1;
     
-    //Create vector to hold expected number of times each type of hand appears:
+    //Create vector to hold expected number of times
+    //each type of hand appears:
     //aaaaa
     //aaaab
     //aaabb
@@ -55,22 +53,41 @@ bool Poker::test(double &chi, int &DoF, const vecDouble& p)
     //aabbc
     //aabcd
     //abcde
-    //TODO:Figure out how to determine frequency
-    vecInt expectedFreq = {1/std::pow(maxVal,4),
-			   1/std::pow(maxVal,3) * (maxVal - 1)/maxVal};
+    //also find the hands that should be grouped together.
+    vecDouble expectedFreq = {1.0/20736,
+			      55.0/20736,
+			      55.0/10368,
+			      275.0/5184,
+			      275.0/3456,
+			      275.0/576,
+			      55.0/144};
+    //Calculate the expected frequencies and
+    //the number of groups to combine to reach required
+    //minimum of 5 per catagory
+    int smallestFreq = 0;
+    int numToGroup = -1;
+    for(int i = 0; i < expectedFreq.size(); i++)
+    {
+	expectedFreq.at(i) *= sample.size()/5;
+	smallestFreq += expectedFreq.at(i);
+	if(smallestFreq >= 5 && numToGroup < 0)
+	    numToGroup = i;
+    }
+    std::cout << "Grouping first " << numToGroup << std::endl;
+    DoF = 7 - numToGroup - 1;
+    
 		   
     //Create vector to hold number of times each hand appears.
     vecInt freq(7,0);
     //populate that vector
-    for(int i = 0; i < sample.size(); i++)
+    for(int i = 0; i < sample.size(); i+=5)
     {
 	//create a hand
         vecInt hand;
 	for(int j = 0; j < handSize; j++)
 	    hand.push_back(sample.at( (i+j) % sample.size() ) );
-
-	//Check to see what kind of hand it is and
-	//record it
+	
+	//Group the hand by number
 	std::map<uint,uint> handMap;
 	for(auto&& elem : hand)
 	{
@@ -80,62 +97,93 @@ bool Poker::test(double &chi, int &DoF, const vecDouble& p)
 	    else
 		mapElem->second++;
 	}
+
+	//Print out the hand
+	/*std::cout << "At hand " << i << " of " << sample.size()
+		  << std::endl;
+	for(auto&& elem : handMap)
+	    std::cout << elem.first
+		      << " occurs " << elem.second
+		      << " times." << std::endl;*/
 	
-	//Get the frequency counts (ie (5), (4,1),(3,2),(3,1,1), etc
+
+	//Take hand and create a sorted vector containing the
+	//number of times each number appears, is (1,1,3) (1,2,2) etc
+	std::vector<ubyte> numFreq;
+	for(auto&& elem : handMap)
+	    numFreq.push_back(elem.second);
+	std::sort(numFreq.begin(), numFreq.end());
+
+	/* //Print out hand freq
+	std::cout << i << ": ";
+	for(auto&& elem : numFreq)
+	    std::cout << (int)elem << " ";
+	std::cout << std::endl;*/
+
+	//Identify hand, and increase the frequency count
 	bool foundHand = false;
-	uint prevMax = 6;
-	
-	for(int i = 0; !foundHand; i++)
+	for(int j = 0; !foundHand && j < numFreq.size(); j++)
 	{
-	    uint maxFreq = 0;
-	    for(auto&& pair : handMap)
-		if(pair.second > maxFreq && pair.second <= prevMax)
-		    maxFreq = pair.second;
-
-
-            //If we've uniquily identified a hand, increase freq count
-	    if(maxFreq >= 4)
+	    if(numFreq.at(j) == 2)
 	    {
-		if(maxFreq >= 5)
-		    freq.at(0)++;
-		else
-		    freq.at(1)++;
+		if(j == 0)
+		    freq.at(2)++;
+		if(j == 1)
+		    freq.at(4)++;
+		if(j == 3)
+		    freq.at(5)++;
 		foundHand = true;
 	    }
-	    else
+
+	    if(numFreq.at(j) == 3)
 	    {
-		if(prevMax == 3 && maxFreq == 2)
-		{
-		    freq.at(2)++;
-		    foundHand = true;
-		}
-		else if(prevMax == 3 && maxFreq == 1)
-		{
-		    freq.at(3)++;
-		    foundHand = true;
-		}
-		else if(prevMax == 2 && maxFreq == 2)
-		{
-		    freq.at(4)++;
-		    foundHand = true;
-		}
-		else if(prevMax == 2 && maxFreq == 1)
-		{
-		    freq.at(5)++;
-		    foundHand = true;
-		}
-		else if(prevMax == 1 && maxFreq == 1)
-		{
-		    freq.at(6)++;
-		    foundHand = true;
-		}
+		freq.at(3)++;
+		foundHand = true;
 	    }
-	    prevMax = maxFreq;
+	    
+	    if(numFreq.at(j) == 4)
+	    {
+		freq.at(1)++;
+		foundHand = true;
+	    }
+
+	    if(numFreq.at(j) == 5)
+	    {
+		freq.at(0)++;
+		foundHand = true;
+	    }
 	}
+
+	if(!foundHand)
+	    freq.at(6)++;
+		
     }//Looped through all hands now
 
-    //Calculate chi
+    
+    std::cout << "Frequencies" << std::endl;
     for(int i = 0; i < freq.size(); i++)
+	std::cout << freq[i] << " " << expectedFreq[i] << std::endl;
+    
+
+    
+    //combine groups
+    for(int i = 0; i < numToGroup; i++)
+    {
+	freq[numToGroup] += freq[i];
+	freq[i] = 0;
+	expectedFreq[numToGroup] += expectedFreq[i];
+	expectedFreq[i] = 0;
+    }
+
+    /*
+    std::cout << "Adjusted Frequencies" << std::endl;
+    for(int i = 0; i < freq.size(); i++)
+	std::cout << freq[i] << " " << expectedFreq[i] << std::endl;
+    */
+
+
+    //Calculate chi
+    for(int i = numToGroup; i < freq.size(); i++)
 	chi += std::pow(freq[i] - expectedFreq[i],2)/expectedFreq[i];
     return true;
 }

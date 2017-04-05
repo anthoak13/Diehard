@@ -25,6 +25,7 @@
 #include "MTuple.h"
 #include "Serial.h"
 #include "Frequency.h"
+#include "Poker.h"
 
 using string = std::string;
 int tests(vecInt& data);
@@ -41,8 +42,12 @@ int main(int argc, char **argv)
 	std::cout << " " << h.to1Dim(test) << std::endl;*/
     
     vecInt data;
-    //loadData(data,"/media/adam/DATA/DicePictures/Run3/labels.csv");
+    loadData(data,"/media/adam/DATA/DicePictures/Run3/labels.csv");
     loadData(data,"/media/adam/DATA/DicePictures/Run4/labels.csv");
+    loadData(data,"/media/adam/DATA/DicePictures/Run5/labels.csv");
+    //loadData(data, "/home/adam/Desktop/Mike_160103.csv");
+    //loadData(data,"");
+    
     //Test the data
     tests(data);
     return 0;
@@ -57,9 +62,16 @@ int loadData(vecInt& data, string fileLoc)
 	std::mt19937 gen(rd());
 	std::uniform_int_distribution<> dis(1, 12);
 	
-	int dataSize = 100;
+	/*int dataSize = 100;
 	for(int i = 0; i < dataSize; i++)
-	    data.push_back(dis(gen));
+	data.push_back(dis(gen));*/
+	data = {1,1,1,1,1,
+		1,1,1,1,2,
+		1,1,1,2,2,
+		1,1,1,2,3,
+		1,1,2,2,3,
+		1,1,2,3,4,
+		1,2,3,4,5};
     }
     else
     {
@@ -145,6 +157,12 @@ int tests(vecInt& data)
     std::cout << "Serial: " << std::endl <<
 	"X^2: " << chi << " DoF: " << DoF << std::endl;
 
+    //Poker test
+    Poker poker(5,12, data);
+    poker.test(chi, DoF);
+    std::cout << "Poker: " << std::endl <<
+	"X^2: " << chi << " DoF: " << DoF << std::endl;
+    
     return 0;
 }
 

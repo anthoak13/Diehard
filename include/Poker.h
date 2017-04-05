@@ -20,6 +20,7 @@
 #ifndef POKER_H
 #define POKER_H
 
+#include <algorithm>
 #include <iostream>
 #include <cstdint>
 #include <vector>
@@ -28,6 +29,7 @@
 #include "ArrayHelper.h"
 
 using uint = unsigned int;
+using ubyte = unsigned char;
 using vecInt = std::vector<int>;
 using vecDouble = std::vector<double>;
 
